@@ -1,0 +1,29 @@
+# Evaluation and Benchmark Configuration
+benchmark_pool:
+  - Random
+  - Nit
+  - TAG
+  - LAG
+  - CallingStation
+  - Maniac
+  - Overfolder
+  - Overbluffer
+  - AdaptiveReg
+  - FrozenCheckpoint
+
+benchmarks:
+  single_table_hands: 500
+  preliminary_hands: 200
+  semifinal_hands: 20
+  final_hands: 30
+  full_tournaments: 5
+
+metrics:
+  - bb_per_100
+  - mean_net_bb
+  - p_top12
+  - p_top6
+  - p_champion
+  - variance
+  - worst_5_percent
+  - opponent_robustness

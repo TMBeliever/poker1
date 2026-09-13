@@ -1,9 +1,16 @@
 # visualize_tournament.py
+import sys
+import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import pokers as pkrs
 import numpy as np
 import torch
 import random
-import os
 import time
 import argparse
 from src.core.deep_cfr import DeepCFRAgent

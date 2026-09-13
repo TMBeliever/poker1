@@ -348,13 +348,15 @@ def traverse_agent_turn(
         ev=ev,
     )
     max_abs_val = max(abs(max(action_values)), abs(min(action_values)), 1.0)
+    pot_size = getattr(state, "pot", 0.0)
+    pot_multiplier = 1.0 + min(3.0, float(pot_size) / 40.0)
     for action_type in legal_action_types:
         regret = action_values[action_type] - ev
         normalized_regret = regret / max_abs_val
         clipped_regret = np.clip(normalized_regret, -10.0, 10.0)
         scale_factor = np.sqrt(iteration) if iteration > 1 else 1.0
         weighted_regret = clipped_regret * scale_factor
-        priority = abs(weighted_regret) + 0.01
+        priority = (abs(weighted_regret) + 0.01) * pot_multiplier
 
         agent.advantage_memory.add(
             (

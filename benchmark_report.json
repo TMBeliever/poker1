@@ -1,0 +1,7 @@
+{
+  "hands_per_sec": 1961.3198309538452,
+  "decision_steps_per_sec": 19593.585111228913,
+  "tournaments_per_sec": 0.9143521445292008,
+  "model_inference_per_sec": 349.9220020303579,
+  "end_to_end_samples_per_sec": 955.3245210410025
+}

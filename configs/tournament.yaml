@@ -1,0 +1,38 @@
+# ApexPoker Tournament Engine Configuration
+num_players: 120
+table_size: 6
+starting_stack_bb: 100.0
+small_blind: 1.0
+big_blind: 2.0
+
+preliminary:
+  total_hands: 200
+  num_rounds: 10
+  hands_per_round: 20
+  random_rounds: [1, 2, 3]
+  swiss_rounds: [4, 5, 6, 7, 8, 9, 10]
+  cutoff_rank: 12
+
+semifinal:
+  num_players: 12
+  num_tables: 2
+  hands_per_table: 20
+  stack_reset_bb: 100.0
+  snake_seeding:
+    table_a: [1, 4, 5, 8, 9, 12]
+    table_b: [2, 3, 6, 7, 10, 11]
+  cutoff_rank_per_table: 3
+
+final:
+  num_players: 6
+  num_tables: 1
+  hands: 30
+  stack_reset_bb: 100.0
+  champion_rank: 1
+
+rebuy:
+  auto_rebuy: true
+  min_playable_stack_bb: 1.0
+  replenish_stack_bb: 100.0
+
+seed: 42

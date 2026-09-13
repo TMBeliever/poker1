@@ -1,0 +1,9 @@
+# Poker Core Environment Configuration
+num_players: 6
+small_blind: 1.0
+big_blind: 2.0
+starting_stack_bb: 100.0
+min_bet_size: 0.1
+max_bet_size: 3.0
+strict_checking: false
+seed: 42

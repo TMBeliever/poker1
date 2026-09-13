@@ -1,6 +1,12 @@
 # scripts/poker_gui.py
 import sys
 import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import random
 import glob
 import torch
@@ -53,31 +59,40 @@ class CardWidget(QLabel):
             
         # Convert rank to text representation
         rank_map = {
-            pkrs.CardRank.R2: "2",
-            pkrs.CardRank.R3: "3",
-            pkrs.CardRank.R4: "4",
-            pkrs.CardRank.R5: "5",
-            pkrs.CardRank.R6: "6",
-            pkrs.CardRank.R7: "7",
-            pkrs.CardRank.R8: "8",
-            pkrs.CardRank.R9: "9",
-            pkrs.CardRank.RT: "10",
-            pkrs.CardRank.RJ: "J",
-            pkrs.CardRank.RQ: "Q",
-            pkrs.CardRank.RK: "K",
-            pkrs.CardRank.RA: "A",
+            0: "2",
+            1: "3",
+            2: "4",
+            3: "5",
+            4: "6",
+            5: "7",
+            6: "8",
+            7: "9",
+            8: "10",
+            9: "J",
+            10: "Q",
+            11: "K",
+            12: "A",
         }
         
         # Convert suit to symbol with color
         suit_map = {
-            pkrs.CardSuit.Clubs: ("♣", "black"),
-            pkrs.CardSuit.Diamonds: ("♦", "red"),
-            pkrs.CardSuit.Hearts: ("♥", "red"),
-            pkrs.CardSuit.Spades: ("♠", "black"),
+            0: ("♣", "black"),
+            1: ("♦", "red"),
+            2: ("♥", "red"),
+            3: ("♠", "black"),
         }
         
-        rank_text = rank_map[self.card.rank]
-        suit_text, color = suit_map[self.card.suit]
+        try:
+            rank_idx = int(self.card.rank)
+            rank_text = rank_map.get(rank_idx, str(self.card.rank))
+        except (ValueError, TypeError):
+            rank_text = str(self.card.rank)
+            
+        try:
+            suit_idx = int(self.card.suit)
+            suit_text, color = suit_map.get(suit_idx, ("?", "black"))
+        except (ValueError, TypeError):
+            suit_text, color = "?", "black"
         
         self.setText(f"{rank_text}\n{suit_text}")
         self.setStyleSheet(f"""
@@ -361,13 +376,18 @@ class PokerTable(QWidget):
     def update_stage(self, stage):
         """Update the game stage display"""
         stage_names = {
-            pkrs.Stage.Preflop: "Preflop",
-            pkrs.Stage.Flop: "Flop",
-            pkrs.Stage.Turn: "Turn",
-            pkrs.Stage.River: "River",
-            pkrs.Stage.Showdown: "Showdown"
+            0: "Preflop",
+            1: "Flop",
+            2: "Turn",
+            3: "River",
+            4: "Showdown"
         }
-        self.stage_label.setText(f"Stage: {stage_names.get(stage, str(stage))}")
+        try:
+            stage_idx = int(stage)
+        except (ValueError, TypeError):
+            stage_idx = -1
+        stage_display = stage_names.get(stage_idx, str(stage).replace("Stage.", ""))
+        self.stage_label.setText(f"Stage: {stage_display}")
     
     def update_players(self, player_states, current_player, button_position, show_all_cards=False):
         """Update all player displays"""
@@ -1170,4 +1190,6 @@ if __name__ == "__main__":
         window.start_new_hand(stake=args.stake, sb=args.sb, bb=args.bb)
     
     window.show()
+    window.raise_()
+    window.activateWindow()
     sys.exit(app.exec_())

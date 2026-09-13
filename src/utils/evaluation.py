@@ -26,14 +26,20 @@ def choose_agent_action(
     state,
     *,
     opponent_id=None,
+    tournament_context=None,
     strict=False,
     fallback_recorder=None,
 ):
-    """Call an agent's choose_action with optional OM opponent context when supported."""
+    """Call an agent's choose_action with optional OM opponent context or tournament context when supported."""
     signature = inspect.signature(agent.choose_action)
     kwargs = {}
     if opponent_id is not None and "opponent_id" in signature.parameters:
         kwargs["opponent_id"] = opponent_id
+    if tournament_context is not None and (
+        "tournament_context" in signature.parameters
+        or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in signature.parameters.values())
+    ):
+        kwargs["tournament_context"] = tournament_context
     if "strict" in signature.parameters:
         kwargs["strict"] = strict
     if "fallback_recorder" in signature.parameters:

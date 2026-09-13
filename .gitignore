@@ -1,15 +1,39 @@
-/models
-/models_om
-/models_mixed_om
-/logs
-/logs/*.log
-/smoke_runs
-/results
-/venv
-/.venv
-/build
-/dist
+# PyTorch Model Checkpoints & Large Binaries
+*.pt
+*.bin
+*.onnx
+
+# Ignore models except competition configs
+/models/*
+!/models/competition/
+
+/models_om/
+/models_mixed_om/
+
+# Training Logs & TensorBoard
+/logs/
+*.tfevents.*
+/smoke_runs/
+/results/
+
+# Virtual Environments
+/venv/
+/.venv/
+
+# Build artifacts
+/build/
+/dist/
+*.egg-info/
+
+# OS & Secrets
+.DS_Store
 .ds_store
 .env
-__pycache__
-util.py
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Large raw processed datasets
+data/processed/
+scratch/

@@ -1,0 +1,22 @@
+# League and Self-Play Configuration
+league:
+  save_dir: "models/league"
+  frozen_pool_dir: "models/frozen"
+  max_frozen_members: 50
+  checkpoint_update_cadence: 100
+
+population:
+  main_ratio: 0.2
+  previous_main_ratio: 0.2
+  frozen_pool_ratio: 0.3
+  archetypes_ratio: 0.3
+
+archetypes:
+  - Nit
+  - TAG
+  - LAG
+  - CallingStation
+  - Maniac
+  - Overfolder
+  - Overbluffer
+  - AdaptiveReg

@@ -1,0 +1,11 @@
+{
+  "checkpoint": "models/phase0_test/checkpoint_iter_2.pt",
+  "tournaments_evaluated": 2,
+  "mean_net_bb": 261.31,
+  "bb_per_100": 1866.47,
+  "variance": 62403.21,
+  "worst_5_percent": 36.48,
+  "p_top12": 0.5,
+  "p_top6": 0.5,
+  "p_champion": 0.0
+}
