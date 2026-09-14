@@ -128,7 +128,7 @@ class CFRCompetitionBridge:
         encoded.append(stage_enc)
 
         # 4. Pot size (normalized by initial stake)
-        initial_stake = float(table.get("initialStake") or table.get("bigBlind", 200) * 100.0 or 20000.0)
+        initial_stake = float(table.get("initialStake") or (table.get("bigBlind", 1000) * 50.0) or 50000.0)
         pot = float(hand.get("pot", 0) or 0)
         encoded.append([pot / max(1.0, initial_stake)])
 
@@ -161,7 +161,7 @@ class CFRCompetitionBridge:
         encoded.append(np.array(p_states, dtype=np.float32))
 
         # 8. Min bet (1-dim)
-        min_bet = float(table.get("bigBlind", 200) or 200)
+        min_bet = float(table.get("bigBlind", 1000) or 1000)
         encoded.append([min_bet / max(1.0, initial_stake)])
 
         # 9. Legal actions (4-dim: Fold, Check, Call, Raise)
