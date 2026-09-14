@@ -201,12 +201,12 @@ def test_rule_18_stage_reset_100bb():
     table_a, table_b = adv.advance_preliminary_to_semifinal(prelim_players)
 
     for p in table_a + table_b:
-        assert p.stack_bb == 100.0
+        assert p.stack_bb == adv.starting_stack_bb
         assert p.stage_net_bb == 0.0
         assert p.rebuy_count == 0
 
     final_table = adv.advance_semifinal_to_final(table_a, table_b)
     for p in final_table:
-        assert p.stack_bb == 100.0
+        assert p.stack_bb == adv.starting_stack_bb
         assert p.stage_net_bb == 0.0
         assert p.rebuy_count == 0

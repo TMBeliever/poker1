@@ -24,7 +24,7 @@ def main():
     parser.add_argument("--players", type=int, default=6, help="Number of players")
     parser.add_argument("--hands", type=int, default=10, help="Number of hands to play")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--stake", type=float, default=200.0, help="Starting stack")
+    parser.add_argument("--stake", type=float, default=50000.0, help="Starting stack")
     args = parser.parse_args()
 
     cfg = {}
@@ -35,7 +35,7 @@ def main():
     num_players = cfg.get("num_players", args.players)
     sb = float(cfg.get("small_blind", 500.0))
     bb = float(cfg.get("big_blind", 1000.0))
-    stake = float(cfg.get("starting_stack_bb", 100.0)) * bb
+    stake = float(cfg.get("starting_stack_bb", 50.0)) * bb
 
     print(f"Starting 6-Max Poker Simulation: {args.hands} hands, {num_players} players, SB={sb}, BB={bb}, seed={seed}")
     table_env = PokerTableEnv(num_players=num_players, sb=sb, bb=bb, stake=stake)

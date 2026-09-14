@@ -77,6 +77,7 @@ def main():
     total_players = cfg.get("num_players", args.players)
     sb = float(cfg.get("small_blind", 500.0))
     bb = float(cfg.get("big_blind", 1000.0))
+    starting_stack_bb = float(cfg.get("starting_stack_bb", 50.0))
     seed = cfg.get("seed", args.seed)
     prelim_cfg = cfg.get("preliminary", {})
     prelim_rounds = prelim_cfg.get("num_rounds", args.prelim_rounds)
@@ -91,7 +92,7 @@ def main():
     print("=" * 70)
     print(" APEXPOKER 120-PLAYER MULTI-STAGE TOURNAMENT")
     print("=" * 70)
-    print(f" Total Players:        {total_players} (Blinds: SB {sb:.0f} / BB {bb:.0f})")
+    print(f" Total Players:        {total_players} (Blinds: SB {sb:.0f} / BB {bb:.0f}, Stack: {starting_stack_bb * bb:.0f} chips = {starting_stack_bb:.0f} BB)")
     print(f" Preliminary Format:   {prelim_rounds} rounds x {hands_per_round} hands = {prelim_rounds * hands_per_round} hands (R1-R3 Random, R4-R10 Swiss)")
     print(f" Semifinal Format:     Top 12 Snake-Seeded into Tables A & B ({semi_hands} hands)")
     print(f" Final Format:         Top 3 from each table -> 6 Players ({final_hands} hands)")
@@ -101,6 +102,7 @@ def main():
     env = TournamentEnv(
         num_players=total_players,
         table_size=6,
+        starting_stack_bb=starting_stack_bb,
         sb=sb,
         bb=bb,
         prelim_rounds=prelim_rounds,

@@ -16,7 +16,7 @@ class RebuyManager:
        Zero-sum across all players is strictly invariant: sum(net_bb) == 0.0.
     """
 
-    def __init__(self, starting_stack_bb: float = 100.0, min_stack_bb: float = 1.0):
+    def __init__(self, starting_stack_bb: float = 50.0, min_stack_bb: float = 1.0):
         self.starting_stack_bb = starting_stack_bb
         self.min_stack_bb = min_stack_bb
 

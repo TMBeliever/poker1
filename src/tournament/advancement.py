@@ -9,8 +9,9 @@ from src.tournament.ranking import RankingEngine
 class AdvancementManager:
     """Manages player qualification, snake seeding, and stage transitions."""
 
-    def __init__(self, ranking_engine: RankingEngine = None):
+    def __init__(self, ranking_engine: RankingEngine = None, starting_stack_bb: float = 50.0):
         self.ranking_engine = ranking_engine or RankingEngine()
+        self.starting_stack_bb = starting_stack_bb
 
     def advance_preliminary_to_semifinal(
         self,
@@ -43,9 +44,9 @@ class AdvancementManager:
         table_a = [top12[i] for i in table_a_indices]
         table_b = [top12[i] for i in table_b_indices]
 
-        # Reset each advancing player for semifinal (Rule 11: 100 BB reset)
+        # Reset each advancing player for semifinal (Rule 11: stage reset)
         for p in table_a + table_b:
-            p.reset_for_stage(starting_stack_bb=100.0)
+            p.reset_for_stage(starting_stack_bb=self.starting_stack_bb)
 
         # Set table and seat IDs
         for seat_id, p in enumerate(table_a):
@@ -77,9 +78,9 @@ class AdvancementManager:
 
         final_table = top3_a + top3_b
         
-        # Reset stack for final (Rule 13: 100 BB reset)
+        # Reset stack for final (Rule 13: stage reset)
         for p in final_table:
-            p.reset_for_stage(starting_stack_bb=100.0)
+            p.reset_for_stage(starting_stack_bb=self.starting_stack_bb)
 
         # Assign final table and seats
         if rng is not None:

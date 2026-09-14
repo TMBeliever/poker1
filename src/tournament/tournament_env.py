@@ -36,7 +36,7 @@ class TournamentEnv:
         self,
         num_players: int = 120,
         table_size: int = 6,
-        starting_stack_bb: float = 100.0,
+        starting_stack_bb: float = 50.0,
         sb: float = 500.0,
         bb: float = 1000.0,
         seed: Optional[int] = 42,
@@ -70,7 +70,10 @@ class TournamentEnv:
         self.rebuy_manager = RebuyManager(starting_stack_bb=starting_stack_bb)
         self.ranking_engine = RankingEngine()
         self.swiss_pairing = SwissPairing(table_size=table_size, ranking_engine=self.ranking_engine)
-        self.advancement_manager = AdvancementManager(ranking_engine=self.ranking_engine)
+        self.advancement_manager = AdvancementManager(
+            ranking_engine=self.ranking_engine,
+            starting_stack_bb=starting_stack_bb,
+        )
 
         # State tracking
         self.stage = Stage.PRELIMINARY

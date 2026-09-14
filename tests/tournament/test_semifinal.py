@@ -22,9 +22,9 @@ def test_snake_seeding_exact_mapping():
     # B: 2, 3, 6, 7, 10, 11
     assert [p.player_id for p in table_b] == [2, 3, 6, 7, 10, 11]
 
-    # Verify 100 BB reset
+    # Verify stage stack reset
     for p in table_a + table_b:
-        assert p.stack_bb == 100.0
+        assert p.stack_bb == mgr.starting_stack_bb
         assert p.stage_net_bb == 0.0
         assert p.rebuy_count == 0
 
@@ -65,7 +65,7 @@ def test_semifinal_to_final_advancement():
     final_ids = {p.player_id for p in final_table}
     assert final_ids == {6, 5, 4, 12, 11, 10}
 
-    # Verify 100 BB reset for final
+    # Verify stage stack reset for final
     for p in final_table:
-        assert p.stack_bb == 100.0
+        assert p.stack_bb == mgr.starting_stack_bb
         assert p.stage_net_bb == 0.0

@@ -18,15 +18,15 @@ class TournamentConfig:
 
     Defaults strictly adhere to the official 120-player tournament format:
     - Field: 120 players, 20 tables (6-max)
-    - Blinds: SB 500, BB 1000, Starting Stack 100 BB (100,000 chips)
+    - Blinds: SB 500, BB 1000, Starting Stack 50 BB (50,000 chips)
     - Preliminary: 10 rounds x 20 hands = 200 hands, continuous stacks, auto-rebuy
-    - Semifinal: Top 12 qualify, 2 tables of 6, 20 hands, stack reset 100 BB
-    - Final: Top 6 qualify, 1 table of 6, 30 hands, stack reset 100 BB
+    - Semifinal: Top 12 qualify, 2 tables of 6, 20 hands, stack reset 50 BB
+    - Final: Top 6 qualify, 1 table of 6, 30 hands, stack reset 50 BB
     """
     field_size: int = 120
     small_blind: int = 500
     big_blind: int = 1000
-    starting_stack_bb: int = 100
+    starting_stack_bb: int = 50
     seats_per_table: int = 6
     preliminary_rounds: int = 10
     hands_per_round: int = 20

@@ -23,7 +23,7 @@ class LeagueSimulator:
                 field_size=max(12, len(agents)),
                 small_blind=sb,
                 big_blind=bb,
-                starting_stack_bb=100,
+                starting_stack_bb=50,
                 seats_per_table=seats,
                 preliminary_rounds=rounds,
                 hands_per_round=hands_per_round,
@@ -41,8 +41,8 @@ class LeagueSimulator:
     def _state(self):
         return {
             a.agent_id: {
-                'stack': 100 * self.big_blind,
-                'initial_stack': 100 * self.big_blind,
+                'stack': self.config.starting_chips,
+                'initial_stack': self.config.starting_chips,
                 'rebuy_count': 0,
                 'rebuy_cost_bb': 0.0,
                 'gross_winnings_bb': 0.0,
@@ -91,12 +91,12 @@ class LeagueSimulator:
 
         group_set = set(group)
         for hand_i in range(hands_this_round):
-            # Check for any busted players before the hand: auto-rebuy 100 BB
+            # Check for any busted players before the hand: auto-rebuy
             for aid in group:
                 if st[aid]['stack'] <= 0:
-                    st[aid]['stack'] = 100 * self.big_blind
+                    st[aid]['stack'] = self.config.starting_chips
                     st[aid]['rebuy_count'] += 1
-                    st[aid]['rebuy_cost_bb'] += 100.0
+                    st[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
 
             before = {aid: st[aid]['stack'] for aid in group}
             hands_remaining = self.rounds * self.hpr - (round_no - 1) * self.hpr - hand_i
@@ -117,12 +117,12 @@ class LeagueSimulator:
                     st[aid]['gross_losses_bb'] += (-delta)
                 st[aid]['hands'] += 1
                 if st[aid]['stack'] <= 0:
-                    st[aid]['stack'] = 100 * self.big_blind
+                    st[aid]['stack'] = self.config.starting_chips
                     st[aid]['rebuy_count'] += 1
-                    st[aid]['rebuy_cost_bb'] += 100.0
+                    st[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
 
                 # Unified tournament net calculation:
-                st[aid]['net_bb'] = (st[aid]['stack'] - 100 * self.big_blind) / self.big_blind - st[aid]['rebuy_cost_bb']
+                st[aid]['net_bb'] = (st[aid]['stack'] - self.config.starting_chips) / self.big_blind - st[aid]['rebuy_cost_bb']
 
     def run_preliminary(self):
         st = self._state()
@@ -160,7 +160,7 @@ class LeagueSimulator:
             self.rng.shuffle(grp)
             local = {
                 aid: {
-                    'stack': 100 * self.big_blind,
+                    'stack': self.config.starting_chips,
                     'rebuy_count': 0,
                     'rebuy_cost_bb': 0.0,
                     'gross_winnings_bb': 0.0,
@@ -176,9 +176,9 @@ class LeagueSimulator:
             for h in range(self.config.semifinal_hands):
                 for aid in grp:
                     if local[aid]['stack'] <= 0:
-                        local[aid]['stack'] = 100 * self.big_blind
+                        local[aid]['stack'] = self.config.starting_chips
                         local[aid]['rebuy_count'] += 1
-                        local[aid]['rebuy_cost_bb'] += 100.0
+                        local[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
                 before = {aid: local[aid]['stack'] for aid in grp}
                 _h_sf = h
                 _local_sf = local
@@ -204,10 +204,10 @@ class LeagueSimulator:
                         local[aid]['gross_losses_bb'] += (-delta)
                     local[aid]['hands'] += 1
                     if local[aid]['stack'] <= 0:
-                        local[aid]['stack'] = 100 * self.big_blind
+                        local[aid]['stack'] = self.config.starting_chips
                         local[aid]['rebuy_count'] += 1
-                        local[aid]['rebuy_cost_bb'] += 100.0
-                    local[aid]['net_bb'] = (local[aid]['stack'] - 100 * self.big_blind) / self.big_blind - local[aid]['rebuy_cost_bb']
+                        local[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
+                    local[aid]['net_bb'] = (local[aid]['stack'] - self.config.starting_chips) / self.big_blind - local[aid]['rebuy_cost_bb']
             rows = rank_standings([Standing(aid, v['hands'], v['net_bb'], bb100(v['net_bb'], v['hands'])) for aid, v in local.items()])
             rows.sort(key=lambda x: (-(x.bb100 or float('-inf')), rank_map.get(x.agent_id, 999), x.agent_id))
             for i, x in enumerate(rows, 1):
@@ -220,7 +220,7 @@ class LeagueSimulator:
         self.rng.shuffle(ids)
         local = {
             aid: {
-                'stack': 100 * self.big_blind,
+                'stack': self.config.starting_chips,
                 'rebuy_count': 0,
                 'rebuy_cost_bb': 0.0,
                 'gross_winnings_bb': 0.0,
@@ -235,9 +235,9 @@ class LeagueSimulator:
         for h in range(self.config.final_hands):
             for aid in ids:
                 if local[aid]['stack'] <= 0:
-                    local[aid]['stack'] = 100 * self.big_blind
+                    local[aid]['stack'] = self.config.starting_chips
                     local[aid]['rebuy_count'] += 1
-                    local[aid]['rebuy_cost_bb'] += 100.0
+                    local[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
             before = {aid: local[aid]['stack'] for aid in ids}
             _h_f = h
             _local_f = local
@@ -263,10 +263,10 @@ class LeagueSimulator:
                     local[aid]['gross_losses_bb'] += (-delta)
                 local[aid]['hands'] += 1
                 if local[aid]['stack'] <= 0:
-                    local[aid]['stack'] = 100 * self.big_blind
+                    local[aid]['stack'] = self.config.starting_chips
                     local[aid]['rebuy_count'] += 1
-                    local[aid]['rebuy_cost_bb'] += 100.0
-                local[aid]['net_bb'] = (local[aid]['stack'] - 100 * self.big_blind) / self.big_blind - local[aid]['rebuy_cost_bb']
+                    local[aid]['rebuy_cost_bb'] += float(self.config.starting_stack_bb)
+                local[aid]['net_bb'] = (local[aid]['stack'] - self.config.starting_chips) / self.big_blind - local[aid]['rebuy_cost_bb']
         # Final tie-break by preliminary rank.
         fr = [Standing(aid, v['hands'], v['net_bb'], bb100(v['net_bb'], v['hands'])) for aid, v in local.items()]
         fr = sorted(fr, key=lambda x: (-(x.bb100 if x.bb100 is not None else float('-inf')), rank_map.get(x.agent_id, 999), x.agent_id))

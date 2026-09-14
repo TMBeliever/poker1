@@ -42,7 +42,7 @@ class TournamentState:
 class PlayerRecord:
     """Persistent player tournament profile and accounting record."""
     player_id: int
-    stack_bb: float = 100.0
+    stack_bb: float = 50.0
     rebuy_count: int = 0
     hands_played: int = 0
     stage_hands_played: int = 0
@@ -52,7 +52,7 @@ class PlayerRecord:
     current_table_id: int = -1
     seat_id: int = -1
 
-    def reset_for_stage(self, starting_stack_bb: float = 100.0) -> None:
+    def reset_for_stage(self, starting_stack_bb: float = 50.0) -> None:
         """Reset player chips and stage-specific counters at stage boundary."""
         self.stack_bb = starting_stack_bb
         self.stage_net_bb = 0.0
