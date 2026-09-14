@@ -49,12 +49,12 @@ class CFRCompetitionBridge:
     def _load_agent(self) -> None:
         """Load the PyTorch Deep CFR agent from checkpoint."""
         if not os.path.exists(self.model_path):
-            # Try finding another checkpoint in models/base or models/tournament
+            # Try finding latest fine-tuned checkpoint
             candidates = [
+                "models/finetuned_50bb/hybrid_checkpoint_iter_66000.pt",
+                "models/hybrid/hybrid_checkpoint_iter_60000.pt",
                 "models/tournament/curriculum_p5_full.pt",
                 "models/base/base_checkpoint_iter_2000.pt",
-                "models/base/checkpoint_iter_2000.pt",
-                "models/base/base_checkpoint_iter_1000.pt",
                 "models/tournament/curriculum_p1.pt",
             ]
             for c in candidates:

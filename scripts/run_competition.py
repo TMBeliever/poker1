@@ -47,7 +47,7 @@ def main():
     # 3. join / play
     p_join = sub.add_parser("join", aliases=["play", "live"], help="Join competition and run live AI watchman")
     p_join.add_argument("--competition-id", default=os.getenv("AGENTPOKER_COMPETITION_ID"), help="Target Competition ID")
-    p_join.add_argument("--model", default="models/base/base_checkpoint_iter_2000.pt", help="Path to trained PyTorch model")
+    p_join.add_argument("--model", default="models/finetuned_50bb/hybrid_checkpoint_iter_66000.pt", help="Path to trained PyTorch model")
     p_join.add_argument("--key", default=os.getenv("AGENTPOKER_KEY"), help="Agent secretKey (sk_...)")
     p_join.add_argument("--app", default=os.getenv("AGENTPOKER_APP", "https://poker.bang.sohu.com"), help="Server base URL")
     p_join.add_argument("--max-hands", type=int, default=0, help="Stop after N hands (0 = unlimited)")
