@@ -313,6 +313,8 @@ class CFRCompetitionBridge:
                 )
                 t_tensor = torch.tensor(t_ctx, dtype=torch.float32, device=self.device).unsqueeze(0)
                 action_logits, bet_sizing = self.agent.strategy_net(x_tensor, t_tensor)
+            elif self.agent and hasattr(self.agent, "strategy_net"):
+                action_logits, bet_sizing = self.agent.strategy_net(x_tensor)
             else:
                 action_logits = torch.zeros((1, 3), device=self.device)
                 bet_sizing = torch.tensor([[0.5]], device=self.device)
@@ -347,8 +349,8 @@ class CFRCompetitionBridge:
         preflop_score = preflop_strength_score(hero_cards) if hero_cards else 0.5
 
         if is_preflop:
-            # Trash hands: never raise, fold if facing bet
-            if preflop_score < 0.25:
+            # Unplayable trash hands (bottom 38%, e.g. 72o, 83o, 94o, T5o, Q2o): never call or raise
+            if preflop_score < 0.38:
                 p_raise = 0.0
                 if can_fold and not can_check:
                     p_fold = 1.0
