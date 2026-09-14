@@ -40,9 +40,9 @@ class ArenaEvaluator:
     def __init__(
         self,
         competitor_specs: List[Tuple[str, str]],
-        sb: float = 1.0,
-        bb: float = 2.0,
-        stake: float = 200.0,
+        sb: float = 500.0,
+        bb: float = 1000.0,
+        stake: float = 50000.0,
         profiles_path: Optional[str] = "data/profiles/opponent_profiles.json",
     ):
         """Args:
@@ -97,6 +97,9 @@ class ArenaEvaluator:
             env = TournamentEnv(
                 num_players=total_players,
                 table_size=6,
+                sb=self.sb,
+                bb=self.bb,
+                starting_stack_bb=self.stake / max(1.0, self.bb),
                 prelim_rounds=10,
                 hands_per_prelim_round=20,
                 semifinal_hands=20,
