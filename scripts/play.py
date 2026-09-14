@@ -164,8 +164,8 @@ def select_random_models(models_dir, num_models=5, model_pattern="*.pt"):
     return selected_models
 
 def play_against_models(models_dir=None, model_pattern="*.pt", num_models=5, 
-                        player_position=0, initial_stake=200.0, small_blind=1.0, 
-                        big_blind=2.0, verbose=False, shuffle_models=True):
+                        player_position=0, initial_stake=100000.0, small_blind=500.0, 
+                        big_blind=1000.0, verbose=False, shuffle_models=True):
     """
     Play against randomly selected AI models from a directory.
     
@@ -361,9 +361,9 @@ if __name__ == "__main__":
     parser.add_argument('--model-pattern', type=str, default="*.pt", help='File pattern to match model files')
     parser.add_argument('--num-models', type=int, default=5, help='Number of models to select')
     parser.add_argument('--position', type=int, default=0, help='Your position at the table (0-5)')
-    parser.add_argument('--stake', type=float, default=200.0, help='Initial stake')
-    parser.add_argument('--sb', type=float, default=1.0, help='Small blind amount')
-    parser.add_argument('--bb', type=float, default=2.0, help='Big blind amount')
+    parser.add_argument('--stake', type=float, default=100000.0, help='Initial stake')
+    parser.add_argument('--sb', type=float, default=500.0, help='Small blind amount')
+    parser.add_argument('--bb', type=float, default=1000.0, help='Big blind amount')
     parser.add_argument('--verbose', action='store_true', help='Show detailed output')
     parser.add_argument('--no-shuffle', action='store_true', help='Do not select new random models for each game')
     parser.add_argument('--strict', action='store_true', help='Enable strict error checking that raises exceptions for invalid game states')

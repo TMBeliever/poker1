@@ -15,7 +15,7 @@ class SimAgent:
     strategy:StrategyAgent
 
 class LeagueSimulator:
-    def __init__(self, agents:list[SimAgent], sb=100, bb=200, rounds=10, hands_per_round=20, seats=6, min_completion=0.80, seed=7, config: TournamentConfig | None = None):
+    def __init__(self, agents:list[SimAgent], sb=500, bb=1000, rounds=10, hands_per_round=20, seats=6, min_completion=0.80, seed=7, config: TournamentConfig | None = None):
         if config is not None:
             self.config = config
         else:

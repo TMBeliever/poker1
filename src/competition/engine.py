@@ -38,7 +38,7 @@ class NLHEngine:
     The engine intentionally mirrors the amount semantics used by Agent Poker:
     bet/raise amounts are the extra chips committed by the current action.
     """
-    def __init__(self, small_blind: int = 100, big_blind: int = 200, seed: int = 7):
+    def __init__(self, small_blind: int = 500, big_blind: int = 1000, seed: int = 7):
         self.sb = small_blind
         self.bb = big_blind
         self.rng = Random(seed)

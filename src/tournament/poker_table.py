@@ -18,9 +18,9 @@ class PokerTableEnv:
     def __init__(
         self,
         num_players: int = 6,
-        sb: float = 1.0,
-        bb: float = 2.0,
-        stake: float = 200.0,
+        sb: float = 500.0,
+        bb: float = 1000.0,
+        stake: float = 100000.0,
         strict: bool = False,
     ):
         self.num_players = num_players

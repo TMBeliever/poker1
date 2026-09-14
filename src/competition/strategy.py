@@ -345,7 +345,7 @@ class StrategyAgent:
 
         equity = self._equity(hero, board, active_opp)
         pot = float(obs.get("pot", 0) or 0)
-        bb_size = float(obs.get("big_blind", 200) or 200)
+        bb_size = float(obs.get("big_blind", 1000) or 1000)
         call = float(legal.get("call", 0) or 0)
         pot_odds = call / (pot + call) if call > 0 and pot + call > 0 else 0.0
         texture = self._board_texture(board)
@@ -552,7 +552,7 @@ class StrategyAgent:
         score = self._preflop_strength(hero)
         pot = float(obs.get("pot", 0) or 0)
         call = float(legal.get("call", 0) or 0)
-        bb_size = float(obs.get("big_blind", 200) or 200)
+        bb_size = float(obs.get("big_blind", 1000) or 1000)
         is_opening = call <= bb_size * 1.05 and pot <= 3.5 * bb_size
         ctx = obs.get("context") or {}
         stage = str(ctx.get("stage") or ("semifinal" if ctx.get("round_no") == 11 else ("final" if ctx.get("round_no") == 12 else "preliminary")))
@@ -767,7 +767,7 @@ class StrategyAgent:
             return self._sized_bet(legal, pot=pot, bb_size=bb_size, value=premium, pressure=pressure)
         return self._safe_action(legal)
 
-    def _preflop_raise(self, legal: dict[str, Any], premium: bool, bb_size: float = 200.0, size_mult: float = 1.0) -> dict[str, Any]:
+    def _preflop_raise(self, legal: dict[str, Any], premium: bool, bb_size: float = 1000.0, size_mult: float = 1.0) -> dict[str, Any]:
         spec = legal.get("raise", legal.get("bet"))
         if not spec:
             if "allIn" in legal:
@@ -904,7 +904,7 @@ class StrategyAgent:
             p = max(p, 0.96)
         return self._noise(max(0.05, min(0.99, p)))
 
-    def _sized_raise(self, legal: dict[str, Any], strength: float = 0.5, value: bool = True, pressure: float = 0.0, size_mult: float = 1.0, pot: float = 0.0, bb_size: float = 200.0, wetness: float | None = None) -> dict[str, Any]:
+    def _sized_raise(self, legal: dict[str, Any], strength: float = 0.5, value: bool = True, pressure: float = 0.0, size_mult: float = 1.0, pot: float = 0.0, bb_size: float = 1000.0, wetness: float | None = None) -> dict[str, Any]:
         spec = legal.get("raise", legal.get("bet"))
         if not spec:
             return {"type": "allIn"} if "allIn" in legal else {"type": "call"}
@@ -930,7 +930,7 @@ class StrategyAgent:
             target = int(lo + (hi - lo) * max(0.05, min(0.90, frac)))
         return {"type": action_type, "amount": max(lo, min(hi, target))}
 
-    def _sized_bet(self, legal: dict[str, Any], value: bool = True, pressure: float = 0.0, size_mult: float = 1.0, pot: float = 0.0, bb_size: float = 200.0, street: int | None = None, is_cbet: bool = False, wetness: float | None = None) -> dict[str, Any]:
+    def _sized_bet(self, legal: dict[str, Any], value: bool = True, pressure: float = 0.0, size_mult: float = 1.0, pot: float = 0.0, bb_size: float = 1000.0, street: int | None = None, is_cbet: bool = False, wetness: float | None = None) -> dict[str, Any]:
         spec = legal.get("bet", legal.get("raise"))
         if not spec:
             return {"type": "allIn"} if "allIn" in legal else ({"type": "check"} if "check" in legal else {"type": "call"})
@@ -1092,7 +1092,7 @@ class StrategyAgent:
             "agentId": obs.get("agentId"),
             "dealer_seat": dealer_seat,
             "position": me.get("seat"),
-            "big_blind": table.get("bigBlind") or 200,
+            "big_blind": table.get("bigBlind") or 1000,
         }
         return self.choose_local(local)
 

@@ -2,8 +2,8 @@
 num_players: 120
 table_size: 6
 starting_stack_bb: 100.0
-small_blind: 1.0
-big_blind: 2.0
+small_blind: 500.0
+big_blind: 1000.0
 
 preliminary:
   total_hands: 200

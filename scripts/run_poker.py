@@ -33,11 +33,12 @@ def main():
             cfg = yaml.safe_load(f) or {}
 
     num_players = cfg.get("num_players", args.players)
-    seed = cfg.get("seed", args.seed)
-    stake = cfg.get("starting_stack_bb", 100.0) * cfg.get("big_blind", 2.0)
+    sb = float(cfg.get("small_blind", 500.0))
+    bb = float(cfg.get("big_blind", 1000.0))
+    stake = float(cfg.get("starting_stack_bb", 100.0)) * bb
 
-    print(f"Starting 6-Max Poker Simulation: {args.hands} hands, {num_players} players, seed={seed}")
-    table_env = PokerTableEnv(num_players=num_players, stake=stake)
+    print(f"Starting 6-Max Poker Simulation: {args.hands} hands, {num_players} players, SB={sb}, BB={bb}, seed={seed}")
+    table_env = PokerTableEnv(num_players=num_players, sb=sb, bb=bb, stake=stake)
 
     agents = [RandomAgent(i) if i > 0 else TAGAgent(0) for i in range(num_players)]
 
