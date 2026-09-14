@@ -30,6 +30,41 @@ def card_str_to_index(card_str: str) -> int:
     return suit * 13 + rank
 
 
+def preflop_strength_score(cards: List[str]) -> float:
+    """Calculate starting hand strength score in [0.0, 1.0] using calibrated 169-bucket table."""
+    if not cards or len(cards) < 2:
+        return 0.5
+    try:
+        from .cards import parse_card
+        from .calibration import preflop_percentile
+        parsed = [parse_card(c) for c in cards[:2]]
+        perc = preflop_percentile(parsed)
+        if perc is not None:
+            return float(perc)
+    except Exception:
+        pass
+
+    rank_vals = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "T": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
+    try:
+        r1, s1 = cards[0][0], cards[0][1]
+        r2, s2 = cards[1][0], cards[1][1]
+        v1, v2 = sorted([rank_vals.get(r1, 2), rank_vals.get(r2, 2)], reverse=True)
+        score = (v1 + v2) / 28.0
+        if v1 == v2:
+            score += 0.30  # Pair
+        if s1 == s2:
+            score += 0.05  # Suited
+        if v1 - v2 <= 2:
+            score += 0.045  # Connected
+        if v1 >= 13 and v2 >= 10:
+            score += 0.11  # AK, AQ, AJ, KQ
+        if v1 == 14:
+            score += 0.04  # Ace
+        return max(0.0, min(1.0, (score - 0.30) / 0.70))
+    except Exception:
+        return 0.5
+
+
 class CFRCompetitionBridge:
     """Bridges online tournament observations to trained Deep CFR neural models."""
 
@@ -128,25 +163,45 @@ class CFRCompetitionBridge:
         encoded.append(stage_enc)
 
         # 4. Pot size (normalized by initial stake)
-        initial_stake = float(table.get("initialStake") or (table.get("bigBlind", 1000) * 50.0) or 50000.0)
+        blinds = table.get("blinds") or {}
+        bb_val = float(table.get("bigBlind") or blinds.get("big") or hand.get("bigBlind") or 1000.0)
+        initial_stake = float(table.get("initialStake") or table.get("buyIn") or (bb_val * 50.0) or 50000.0)
         pot = float(hand.get("pot", 0) or 0)
         encoded.append([pot / max(1.0, initial_stake)])
 
         # 5. Button position (6-dim one-hot)
         button_enc = np.zeros(num_players, dtype=np.float32)
-        button_seat = table.get("dealerSeat") or table.get("buttonSeat") or 0
-        button_enc[button_seat % num_players] = 1.0
+        button_seat = (
+            table.get("dealerSeatIndex")
+            or hand.get("dealerSeatIndex")
+            or table.get("dealerSeat")
+            or table.get("buttonSeat")
+            or hand.get("buttonSeat")
+            or 0
+        )
+        button_enc[int(button_seat) % num_players] = 1.0
         encoded.append(button_enc)
 
         # 6. Current player (6-dim one-hot)
         curr_enc = np.zeros(num_players, dtype=np.float32)
-        hero_seat = hero_p.get("seat", 0) if hero_p else 0
+        hero_seat = 0
+        if hero_p:
+            if hero_p.get("seatIndex") is not None:
+                hero_seat = int(hero_p["seatIndex"])
+            elif hero_p.get("seat") is not None:
+                hero_seat = int(hero_p["seat"])
+            elif hero_p in players:
+                hero_seat = players.index(hero_p)
         curr_enc[hero_seat % num_players] = 1.0
         encoded.append(curr_enc)
 
         # 7. Player states (24-dim: 6 x [active, bet, pot_chips, stake])
         p_states = []
-        seat_map = {p.get("seat"): p for p in players if p.get("seat") is not None}
+        seat_map = {}
+        for idx, p in enumerate(players):
+            s = p.get("seatIndex") if p.get("seatIndex") is not None else p.get("seat", idx)
+            seat_map[int(s)] = p
+
         for seat in range(num_players):
             p = seat_map.get(seat)
             if p:
@@ -161,7 +216,7 @@ class CFRCompetitionBridge:
         encoded.append(np.array(p_states, dtype=np.float32))
 
         # 8. Min bet (1-dim)
-        min_bet = float(table.get("bigBlind", 1000) or 1000)
+        min_bet = float(bb_val)
         encoded.append([min_bet / max(1.0, initial_stake)])
 
         # 9. Legal actions (4-dim: Fold, Check, Call, Raise)
@@ -258,11 +313,9 @@ class CFRCompetitionBridge:
                 )
                 t_tensor = torch.tensor(t_ctx, dtype=torch.float32, device=self.device).unsqueeze(0)
                 action_logits, bet_sizing = self.agent.strategy_net(x_tensor, t_tensor)
-            elif self.agent and hasattr(self.agent, "strategy_net"):
-                action_logits, bet_sizing = self.agent.strategy_net(x_tensor)
             else:
-                action_logits = torch.zeros((1, 3))
-                bet_sizing = torch.tensor([[0.5]])
+                action_logits = torch.zeros((1, 3), device=self.device)
+                bet_sizing = torch.tensor([[0.5]], device=self.device)
 
         # Action head outputs logits for [Fold, Check/Call, Raise]
         probs = torch.softmax(action_logits, dim=-1).squeeze(0).cpu().numpy()
@@ -278,8 +331,37 @@ class CFRCompetitionBridge:
         can_allin = "allIn" in allowed
         can_fold = "fold" in allowed
 
+        # Invariant 1: If check is free, never fold
+        if can_check:
+            p_fold = 0.0
+
+        # Preflop strategic protections
+        table = obs.get("table") or {}
+        hand = table.get("hand") or {}
+        comm_count = len(hand.get("communityCards") or [])
+        is_preflop = comm_count == 0
+        players = table.get("players") or []
+        hero_id = obs.get("agentId")
+        hero_p = next((p for p in players if p.get("agentId") == hero_id), None)
+        hero_cards = (hero_p.get("handState") or {}).get("holeCards") if hero_p else []
+        preflop_score = preflop_strength_score(hero_cards) if hero_cards else 0.5
+
+        if is_preflop:
+            # Trash hands: never raise, fold if facing bet
+            if preflop_score < 0.25:
+                p_raise = 0.0
+                if can_fold and not can_check:
+                    p_fold = 1.0
+                    p_call = 0.0
+            # Premium hands (AA, KK, QQ, JJ, AK): never fold preflop
+            elif preflop_score >= 0.75:
+                p_fold = 0.0
+                # Super-premiums: strongly prioritize raise / 3-bet
+                if preflop_score >= 0.88 and (can_raise or can_bet):
+                    p_raise = max(p_raise, p_call + 0.15, 0.65)
+
         # Sizing target
-        pot = float(obs.get("table", {}).get("hand", {}).get("pot", 0) or 0)
+        pot = float(hand.get("pot", 0) or 0)
         target_amt = int(pot * multiplier)
 
         decision: Dict[str, Any] = {}
