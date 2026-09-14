@@ -361,9 +361,41 @@ class CFRCompetitionBridge:
                 # Super-premiums: strongly prioritize raise / 3-bet
                 if preflop_score >= 0.88 and (can_raise or can_bet):
                     p_raise = max(p_raise, p_call + 0.15, 0.65)
+        else:
+            # Postflop (Flop, Turn, River) strategic protections
+            board_cards_raw = hand.get("communityCards") or []
+            if hero_cards and board_cards_raw:
+                try:
+                    from .cards import parse_card, evaluate_relative_strength
+                    hc = [parse_card(c) for c in hero_cards[:2]]
+                    bc = [parse_card(c) for c in board_cards_raw]
+                    ret = evaluate_relative_strength(hc, bc)
+                    post_str = ret.get("strength", 0.5)
+                    tier = ret.get("tier", "")
 
-        # Sizing target
+                    # 1. Pure air / missed board (high card, weak): NEVER bet or raise, fold if facing bet
+                    if post_str < 0.35 or tier == "high_card":
+                        p_raise = 0.0
+                        if can_check:
+                            p_fold = 0.0
+                            p_call = 1.0
+                        else:
+                            p_fold = 1.0
+                            p_call = 0.0
+                    # 2. Marginal / medium hand (weak pair, middle pair): pot control, never over-raise
+                    elif post_str < 0.65:
+                        p_raise = min(p_raise, 0.15)
+                        multiplier = min(multiplier, 0.60)
+                    # 3. Monster made hand (top two, set, flush, straight): value bet
+                    elif post_str >= 0.75:
+                        p_fold = 0.0
+                except Exception:
+                    pass
+
+        # Sizing target (controlled postflop sizing)
         pot = float(hand.get("pot", 0) or 0)
+        if not is_preflop:
+            multiplier = min(multiplier, 1.0)
         target_amt = int(pot * multiplier)
 
         decision: Dict[str, Any] = {}
