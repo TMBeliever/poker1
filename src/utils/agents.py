@@ -21,11 +21,13 @@ class CheckpointAgent:
         device="cpu",
         sanitize_actions=True,
         with_opponent_modeling=None,
+        greedy=False,
     ):
         self.player_id = player_id
         self.model_path = str(model_path)
         self.device = device
         self.sanitize_actions = sanitize_actions
+        self.greedy = greedy
         self.name = f"Model Agent {player_id} ({os.path.basename(self.model_path)})"
         self.sanitized_action_count = 0
         self.sanitization_events = []
@@ -39,8 +41,15 @@ class CheckpointAgent:
             checkpoint=checkpoint,
         )
 
-    def choose_action(self, state, *, strict=False, fallback_recorder=None):
-        action = self.agent.choose_action(state)
+    def choose_action(self, state, *, strict=False, fallback_recorder=None, greedy=None):
+        use_greedy = self.greedy if greedy is None else greedy
+        import inspect
+        sig = inspect.signature(self.agent.choose_action)
+        if "greedy" in sig.parameters:
+            action = self.agent.choose_action(state, greedy=use_greedy)
+        else:
+            action = self.agent.choose_action(state)
+
         if self.sanitize_actions:
             return sanitize_action(
                 state,

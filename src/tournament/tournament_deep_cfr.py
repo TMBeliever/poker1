@@ -117,6 +117,7 @@ class TournamentDeepCFRAgent:
         state: pkrs.State,
         tournament_context: Optional[TournamentState] = None,
         strict: bool = False,
+        greedy: bool = False,
         **kwargs,
     ) -> pkrs.Action:
         """Choose an action given current poker state and tournament context."""
@@ -149,8 +150,12 @@ class TournamentDeepCFRAgent:
             for act_type in legal_types:
                 probs[act_type] = 1.0 / len(legal_types)
 
-        # Sample action from strategy probabilities
-        chosen_action_type = int(np.random.choice(self.num_actions, p=probs))
+        # Sample action from strategy probabilities or choose greedy argmax
+        use_greedy = greedy or getattr(self, "greedy", False)
+        if use_greedy:
+            chosen_action_type = int(np.argmax(probs))
+        else:
+            chosen_action_type = int(np.random.choice(self.num_actions, p=probs))
         bet_size_ratio = float(bet_size_pred.squeeze().cpu().item())
         bet_size_ratio = max(self.min_bet_size, min(self.max_bet_size, bet_size_ratio))
 

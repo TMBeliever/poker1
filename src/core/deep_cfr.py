@@ -886,7 +886,7 @@ class DeepCFRAgent:
         # Return average loss
         return total_loss / epochs
 
-    def choose_action(self, state):
+    def choose_action(self, state, greedy: bool = False):
         """Choose an action for the given state during actual play."""
         legal_action_types = self.get_legal_action_types(state)
         
@@ -913,8 +913,11 @@ class DeepCFRAgent:
         else:
             legal_probs = np.ones(len(legal_action_types)) / len(legal_action_types)
         
-        # Choose action based on probabilities
-        action_idx = np.random.choice(len(legal_action_types), p=legal_probs)
+        # Choose action based on probabilities or greedy argmax
+        if greedy:
+            action_idx = int(np.argmax(legal_probs))
+        else:
+            action_idx = np.random.choice(len(legal_action_types), p=legal_probs)
         action_type = legal_action_types[action_idx]
         
         # Use the predicted bet size for raise actions

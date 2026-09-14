@@ -261,23 +261,39 @@ def build_competitor(
         return agent, name
 
     # Check if Deep CFR PyTorch checkpoint (.pt)
-    if spec.endswith(".pt") or os.path.exists(spec):
+    use_greedy = True
+    clean_spec = spec
+    if ":greedy" in spec:
+        use_greedy = True
+        clean_spec = spec.replace(":greedy", "")
+    elif ":sample" in spec:
+        use_greedy = False
+        clean_spec = spec.replace(":sample", "")
+
+    if clean_spec.endswith(".pt") or os.path.exists(clean_spec):
         from src.tournament.tournament_deep_cfr import AGENT_TYPE_TOURNAMENT
         from src.utils.agents import CheckpointAgent
         from src.utils.checkpoints import load_checkpoint
         try:
-            ckpt = load_checkpoint(spec, map_location="cpu")
-            if ckpt.get("agent_type") == AGENT_TYPE_TOURNAMENT or "curriculum" in str(spec):
+            ckpt = load_checkpoint(clean_spec, map_location="cpu")
+            if ckpt.get("agent_type") == AGENT_TYPE_TOURNAMENT or "curriculum" in str(clean_spec):
                 agent = TournamentDeepCFRAgent(player_id=player_id, num_players=6)
-                agent.load_checkpoint(spec)
+                agent.load_checkpoint(clean_spec)
+                agent.greedy = use_greedy
                 return agent, name
             else:
-                agent = CheckpointAgent(player_id=player_id, model_path=spec, sanitize_actions=True)
+                agent = CheckpointAgent(
+                    player_id=player_id,
+                    model_path=clean_spec,
+                    sanitize_actions=True,
+                    greedy=use_greedy,
+                )
                 return agent, name
         except Exception:
             agent = TournamentDeepCFRAgent(player_id=player_id, num_players=6)
-            if os.path.exists(spec):
-                agent.load_checkpoint(spec)
+            if os.path.exists(clean_spec):
+                agent.load_checkpoint(clean_spec)
+            agent.greedy = use_greedy
             return agent, name
 
     # Default fallback
