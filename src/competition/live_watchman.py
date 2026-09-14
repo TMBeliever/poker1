@@ -142,7 +142,15 @@ class CompetitionWatchman:
                     dec = body.get("decision", {})
                     amt_str = f" amount={dec.get('amount')}" if "amount" in dec else ""
                     chat_str = f" | Chat: \"{body.get('chat')}\"" if body.get("chat") else ""
-                    print(f"[Live] Hand #{self.total_hands + 1} | Decision -> {dec.get('type')}{amt_str}{chat_str}")
+
+                    table = obs.get("table") or {}
+                    players = table.get("players") or []
+                    hero_id = obs.get("agentId")
+                    hero_p = next((p for p in players if p.get("agentId") == hero_id), None)
+                    hero_cards = (hero_p.get("handState") or {}).get("holeCards") if hero_p else []
+                    stage = (table.get("hand") or {}).get("stage", "preflop")
+
+                    print(f"[Live] Hand #{self.total_hands + 1} | Stage: {stage} | Cards: {hero_cards} | Decision -> {dec.get('type')}{amt_str}{chat_str}", flush=True)
                     obs = self._action_with_retry(body, obs)
                     continue
 
@@ -305,8 +313,8 @@ class CompetitionWatchman:
             self._hero_agent_id = hero_id
         players = table.get("players") or []
         hero_p = next((p for p in players if p.get("agentId") == hero_id), None)
-        curr_stack = hero_p.get("stack") if hero_p else None
-        bb_size = float(table.get("bigBlind") or 1000.0)
+        blinds = table.get("blinds") or {}
+        bb_size = float(table.get("bigBlind") or blinds.get("big") or 1000.0)
 
         if self.prev_hand_id is None:
             self.prev_hand_id = hid
