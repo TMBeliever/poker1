@@ -313,6 +313,7 @@ class CompetitionWatchman:
             self._hero_agent_id = hero_id
         players = table.get("players") or []
         hero_p = next((p for p in players if p.get("agentId") == hero_id), None)
+        curr_stack = hero_p.get("stack") if hero_p else None
         blinds = table.get("blinds") or {}
         bb_size = float(table.get("bigBlind") or blinds.get("big") or 1000.0)
 
