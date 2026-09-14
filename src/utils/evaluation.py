@@ -132,7 +132,7 @@ def evaluate_agent_matchup(
     seed_start: int = 0,
     button_start: int = 0,
     num_players: int = 6,
-    stake: float = 200.0,
+    stake: float = 100.0,
     sb: float = 1.0,
     bb: float = 2.0,
     strict: Optional[bool] = None,

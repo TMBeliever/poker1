@@ -385,7 +385,7 @@ def train_hybrid_cfr(
                 button=button_pos,
                 sb=1.0,
                 bb=2.0,
-                stake=200.0,
+                stake=100.0,
                 seed=rng.randint(0, 1_000_000),
             )
 
